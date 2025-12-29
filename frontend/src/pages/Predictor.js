@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import "./Predictor.css";
 
-const API_BASE_URL = "https://your-backend-url";
+const API_BASE_URL = "https://customer-support-response-time-ml-backend.onrender.com";
+
 // replace with your actual backend URL
 
 function Predictor() {
