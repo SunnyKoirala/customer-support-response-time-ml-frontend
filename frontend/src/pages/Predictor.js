@@ -1,124 +1,51 @@
 import React, { useState } from "react";
-import "./Predictor.css";
-fetch(`${API_BASE_URL}/predict`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(formData)
-})
-  .then(res => res.json())
-  .then(data => setPrediction(data.prediction));
+
+const API_BASE_URL = "https://customer-support-response-time-ml.onrender.com";
 
 function Predictor() {
   const [formData, setFormData] = useState({
     DailyVolume: "",
     HourOfDay: "",
     DayOfWeek: "",
-    Priority: "Low",
-    Category: "Software",
+    Priority: "",
+    Category: "",
   });
 
   const [prediction, setPrediction] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setPrediction(null);
 
-    try {
-      const response = await fetch("http://127.0.0.1:5000/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+    const response = await fetch(`${API_BASE_URL}/predict`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
 
-      const data = await response.json();
-      setPrediction(data.prediction);
-    } catch (error) {
-      alert("Error connecting to backend");
-    }
-
-    setLoading(false);
+    const data = await response.json();
+    setPrediction(data.prediction);
   };
 
   return (
-    <div className="predictor-page">
-      <div className="predictor-card">
-        <div className="ai-badge">🤖 AI Powered Prediction</div>
+    <div>
+      <h2>Response Time Predictor</h2>
 
-        <h2>Customer Support Response Time Predictor</h2>
-        <p className="subtitle">
-          Enter ticket details and let AI predict response time.
-        </p>
+      <form onSubmit={handleSubmit}>
+        <input name="DailyVolume" onChange={handleChange} />
+        <input name="HourOfDay" onChange={handleChange} />
+        <input name="DayOfWeek" onChange={handleChange} />
+        <input name="Priority" onChange={handleChange} />
+        <input name="Category" onChange={handleChange} />
+        <button type="submit">Predict</button>
+      </form>
 
-        {loading && <p className="ai-thinking">AI is thinking...</p>}
-
-        <form onSubmit={handleSubmit}>
-          <input
-            type="number"
-            name="DailyVolume"
-            placeholder="Daily Ticket Volume"
-            value={formData.DailyVolume}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="number"
-            name="HourOfDay"
-            placeholder="Hour of Day (0–23)"
-            value={formData.HourOfDay}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="number"
-            name="DayOfWeek"
-            placeholder="Day of Week (0=Mon, 6=Sun)"
-            value={formData.DayOfWeek}
-            onChange={handleChange}
-            required
-          />
-
-          <select
-            name="Priority"
-            value={formData.Priority}
-            onChange={handleChange}
-          >
-            <option>Low</option>
-            <option>Medium</option>
-            <option>High</option>
-          </select>
-
-          <select
-            name="Category"
-            value={formData.Category}
-            onChange={handleChange}
-          >
-            <option>Software</option>
-            <option>Network</option>
-            <option>Hardware</option>
-          </select>
-
-          <button type="submit">
-            {loading ? "Predicting..." : "Predict"}
-          </button>
-        </form>
-
-        {prediction !== null && (
-          <div className="prediction">
-            ⏱ Predicted Response Time: <strong>{prediction} hours</strong>
-          </div>
-        )}
-      </div>
+      {prediction !== null && (
+        <p>Predicted Response Time: {prediction} hours</p>
+      )}
     </div>
   );
 }
